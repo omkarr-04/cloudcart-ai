@@ -1,0 +1,40 @@
+{
+  "name": "cloudcart-ai",
+  "version": "0.0.1",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "services/*",
+    "infra/*"
+  ],
+  "scripts": {
+    "bootstrap": "npm install",
+    "dev": "npm run dev:frontend",
+    "dev:frontend": "npm --workspace frontend run dev",
+    "dev:auth": "npm --workspace services/auth-service run dev",
+    "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
+    "format": "prettier --write .",
+    "build": "npm run build:frontend && npm run build:auth",
+    "build:frontend": "npm --workspace frontend run build",
+    "build:auth": "npm --workspace services/auth-service run build",
+    "test": "echo \"Run package-level tests from each workspace package.\""
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@typescript-eslint/eslint-plugin": "^7.13.1",
+    "@typescript-eslint/parser": "^7.13.1",
+    "eslint": "^9.0.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-import": "^2.30.0",
+    "eslint-plugin-jsx-a11y": "^6.8.1",
+    "eslint-plugin-react": "^7.34.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-unused-imports": "^3.1.0",
+    "prettier": "^3.8.3",
+    "typescript": "^5.5.4"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.19.3",
+    "prisma": "^6.19.3"
+  }
+}

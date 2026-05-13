@@ -1,0 +1,86 @@
+version: '3.8'
+
+services:
+  # In a real production environment, PostgreSQL and Redis might be managed services (RDS/ElastiCache).
+  # We include them here for a self-hosted production setup.
+  postgres:
+    image: postgres:15-alpine
+    container_name: cloudcart-postgres-prod
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - postgres_data_prod:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - cloudcart-prod-network
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+
+  redis:
+    image: redis:7-alpine
+    container_name: cloudcart-redis-prod
+    restart: always
+    volumes:
+      - redis_data_prod:/data
+    command: ["redis-server", "--appendonly", "yes"] # Enable persistence
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - cloudcart-prod-network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+
+  auth-service:
+    build:
+      context: ../../
+      dockerfile: infra/docker/auth-service.Dockerfile
+      target: production
+    container_name: cloudcart-auth-service-prod
+    restart: always
+    ports:
+      - "4000:4000"
+    environment:
+      - NODE_ENV=production
+      - PORT=4000
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public
+      - REDIS_URL=redis://redis:6379
+      - JWT_ACCESS_TOKEN_SECRET=${JWT_ACCESS_TOKEN_SECRET}
+      - JWT_REFRESH_TOKEN_SECRET=${JWT_REFRESH_TOKEN_SECRET}
+      - ACCESS_TOKEN_EXPIRES_IN=15m
+      - REFRESH_TOKEN_EXPIRES_IN=7d
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - cloudcart-prod-network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+
+networks:
+  cloudcart-prod-network:
+    driver: bridge
+
+volumes:
+  postgres_data_prod:
+  redis_data_prod:
