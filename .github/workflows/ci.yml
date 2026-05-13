@@ -54,7 +54,8 @@ jobs:
     # Monorepo aware install
     - name: Install dependencies
       working-directory: ./
-      run: npm install
+      # run: npm install
+    - run: npm install --legacy-peer-deps
 
     - name: Check code formatting
       run: npm run format -- --check
