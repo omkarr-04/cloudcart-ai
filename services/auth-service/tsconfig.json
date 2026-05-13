@@ -4,7 +4,7 @@
     "target": "ES2022",
     "module": "CommonJS",
     "moduleResolution": "Node",
-    "lib": ["ES2022"],
+
     "rootDir": ".",
     "outDir": "dist",
 
@@ -21,11 +21,13 @@
 
     "types": ["node", "vitest/globals"]
   },
+
   "include": [
-    "src/**/*.ts",
-    "tests/**/*.ts",
-    "prisma/**/*.ts"
+    "src/**/*",
+    "tests/**/*",
+    "prisma/**/*"
   ],
+
   "exclude": [
     "node_modules",
     "dist"
